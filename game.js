@@ -26865,7 +26865,7 @@ var _0xcdc9 = function (_0x28b7ae) {
         warehouseManager: new ig["Image"](
           "media/graphics/sprites/popup/manager2.png",
         ),
-        size: { x: 0x197, y: 0x197 },
+        size: { x: 0x197, y: 0x1E0 },
         businessClass: null,
         upgradeData: null,
         panelParent: null,
@@ -27084,7 +27084,7 @@ var _0xcdc9 = function (_0x28b7ae) {
         barBg: new ig["Image"]("media/graphics/sprites/popup/bar-bg.png"),
         barFilled: new ig["Image"]("media/graphics/sprites/popup/bar.png"),
         arrow: new ig["Image"]("media/graphics/sprites/arrow-downgrade.png"),
-        size: { x: 0x197, y: 0x197 },
+        size: { x: 0x197, y: 0x1E0 },
         businessClass: null,
         upgradeData: null,
         panelParent: null,
