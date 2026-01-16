@@ -27103,7 +27103,7 @@ var _0xcdc9 = function (_0x28b7ae) {
               "middle-center",
             ),
             (this["id"] = this["businessClass"]["businessData"]["Id"]),
-            (this["textwrapper"] = new ig["Textwrapper"](0xc, "comfortaa")),
+            (this["textwrapper"] = new ig["Textwrapper"](0xe, "comfortaa")),
             (this["upgradeData"] = this["businessClass"]["managerUpdateData"]),
             "Warehouse" == this["id"]
               ? ((this["currentIcon"] = this["iconWarehouse"]),
@@ -27336,7 +27336,7 @@ var _0xcdc9 = function (_0x28b7ae) {
           ),
             (_0x424ccb = this["textwrapper"]["wrapText"](
               _STRINGS["Game"]["ManagerSkillDesc"],
-              0xdc,
+              0xd7,
             )),
             this["textwrapper"]["drawTextList"](
               _0x424ccb,
@@ -27402,7 +27402,7 @@ var _0xcdc9 = function (_0x28b7ae) {
                 ),
                 (_0x424ccb = this["textwrapper"]["wrapText"](
                   _STRINGS["Game"]["ManagerSkillDesc"],
-                  0xdc,
+                  0xd7,
                 )),
                 this["textwrapper"]["drawTextList"](
                   _0x424ccb,
