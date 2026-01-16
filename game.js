@@ -26883,7 +26883,7 @@ var _0xcdc9 = function (_0x28b7ae) {
             (this["price"] =
               this["businessClass"]["businessData"]["ManagerPrice"]),
             (_0x2bde78 = this["businessClass"]["businessData"]["Id"]),
-            (this["textwrapper"] = new ig["Textwrapper"](0x12, "comfortaa")),
+            (this["textwrapper"] = new ig["Textwrapper"](0xe, "comfortaa")),
             "Warehouse" == _0x2bde78
               ? ((this["currentIcon"] = this["iconWarehouse"]),
                 (this["title"] = _STRINGS["Game"]["ManagerHire"]),
@@ -27009,7 +27009,7 @@ var _0xcdc9 = function (_0x28b7ae) {
             (_0x55e357["fillStyle"] = "#190d3a"),
             (_0x55e357 = this["textwrapper"]["wrapText"](
               this["textDesc"],
-              0xfa,
+              0xe1,
             )),
             this["textwrapper"]["drawTextList"](
               _0x55e357,
