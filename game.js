@@ -27314,7 +27314,7 @@ var _0xcdc9 = function (_0x28b7ae) {
                     "\x20+" +
                     this["businessClass"]["СКОРОСТЬBooster"] +
                     "%",
-                  0xfa,
+                  0xdc,
                 )
               : this["textwrapper"]["wrapText"](
                   _STRINGS["Game"]["Profit"] +
@@ -27325,7 +27325,7 @@ var _0xcdc9 = function (_0x28b7ae) {
                     "\x20+" +
                     this["businessClass"]["СКОРОСТЬBooster"] +
                     "%",
-                  0xfa,
+                  0xdc,
                 );
           (this["textwrapper"]["drawTextList"](
             _0x424ccb,
@@ -27336,7 +27336,7 @@ var _0xcdc9 = function (_0x28b7ae) {
           ),
             (_0x424ccb = this["textwrapper"]["wrapText"](
               _STRINGS["Game"]["ManagerSkillDesc"],
-              0xfa,
+              0xdc,
             )),
             this["textwrapper"]["drawTextList"](
               _0x424ccb,
@@ -27390,7 +27390,7 @@ var _0xcdc9 = function (_0x28b7ae) {
                 ),
                 (_0x424ccb = this["textwrapper"]["wrapText"](
                   this["upgradeDesc"],
-                  0xfa,
+                  0xdc,
                 )),
                 this["textwrapper"]["drawTextList"](
                   _0x424ccb,
@@ -27402,7 +27402,7 @@ var _0xcdc9 = function (_0x28b7ae) {
                 ),
                 (_0x424ccb = this["textwrapper"]["wrapText"](
                   _STRINGS["Game"]["ManagerSkillDesc"],
-                  0xfa,
+                  0xdc,
                 )),
                 this["textwrapper"]["drawTextList"](
                   _0x424ccb,
