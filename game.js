@@ -27011,7 +27011,7 @@ var _0xcdc9 = function (_0x28b7ae) {
               this["textDesc"],
               0xe1,
             )),
-            this["textwrapper"]["drawTextList"](
+            (
               _0x55e357,
               this["pos"]["x"] + 0x82,
               this["pos"]["y"] +
@@ -27304,7 +27304,7 @@ var _0xcdc9 = function (_0x28b7ae) {
               _STRINGS["Game"]["ActiveSkill"],
               this["pos"]["x"] + 0x82,
               this["pos"]["y"] +
-                0x8c +
+                0x96 +
                 (this["infoBg"]["height"] - this["portrait"]["height"]) / 0x2,
             ));
           var _0x424ccb =
@@ -27327,7 +27327,7 @@ var _0xcdc9 = function (_0x28b7ae) {
                     "%",
                   0xdc,
                 );
-          (this["textwrapper"]["drawTextList"](
+          ((
             _0x424ccb,
             this["pos"]["x"] + 0x82,
             this["pos"]["y"] +
@@ -27342,7 +27342,7 @@ var _0xcdc9 = function (_0x28b7ae) {
               _0x424ccb,
               this["pos"]["x"] + 0x82,
               this["pos"]["y"] +
-                0x9b +
+                0xa5 +
                 (this["infoBg"]["height"] - this["portrait"]["height"]) / 0x2,
             ),
             this["updateEligible"]
@@ -27384,7 +27384,7 @@ var _0xcdc9 = function (_0x28b7ae) {
                   _STRINGS["Game"]["ActiveSkill"],
                   this["pos"]["x"] + 0x82,
                   this["pos"]["y"] +
-                    0xf5 +
+                    0x96 +
                     (this["infoBg"]["height"] - this["portrait"]["height"]) /
                       0x2,
                 ),
