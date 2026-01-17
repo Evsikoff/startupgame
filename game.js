@@ -27304,7 +27304,7 @@ var _0xcdc9 = function (_0x28b7ae) {
               _STRINGS["Game"]["ActiveSkill"],
               this["pos"]["x"] + 0x82,
               this["pos"]["y"] +
-                0x8c +
+                0x78 +
                 (this["infoBg"]["height"] - this["portrait"]["height"]) / 0x2,
             ));
           var _0x424ccb =
@@ -27396,7 +27396,7 @@ var _0xcdc9 = function (_0x28b7ae) {
                   _0x424ccb,
                   this["pos"]["x"] + 0x82,
                   this["pos"]["y"] +
-                    0xe1 +
+                    0x87 +
                     (this["infoBg"]["height"] - this["portrait"]["height"]) /
                       0x2,
                 ),
