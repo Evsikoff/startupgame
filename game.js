@@ -32648,6 +32648,26 @@ var _0xcdc9 = function (_0x28b7ae) {
             var rewardCallback = _0x118e17;
             var messageEntity = _0x2cffe6;
             var rewarded = false;
+            var wasSoundEnabled =
+              ig && ig["game"] && ig["game"]["sessionData"]
+                ? ig["game"]["sessionData"]["sound"]
+                : false;
+            var wasMusicEnabled =
+              ig && ig["game"] && ig["game"]["sessionData"]
+                ? ig["game"]["sessionData"]["music"]
+                : false;
+            var muteForYandexAd = function () {
+              ig &&
+                ig["soundHandler"] &&
+                (wasSoundEnabled && ig["soundHandler"]["muteSFX"](!![]),
+                wasMusicEnabled && ig["soundHandler"]["muteBGM"](!![]));
+            };
+            var restoreAfterYandexAd = function () {
+              ig &&
+                ig["soundHandler"] &&
+                (wasSoundEnabled && ig["soundHandler"]["unmuteSFX"](!![]),
+                wasMusicEnabled && ig["soundHandler"]["unmuteBGM"](!![]));
+            };
 
             // Use Yandex SDK for rewarded video
             if (typeof window.YandexSDK !== 'undefined' && window.YandexSDK.isInitialized) {
@@ -32655,6 +32675,7 @@ var _0xcdc9 = function (_0x28b7ae) {
                 onOpen: function() {
                   console.log('[YandexSDK] Rewarded video opened');
                   window.YandexSDK.gameplayStop();
+                  muteForYandexAd();
                 },
                 onRewarded: function() {
                   console.log('[YandexSDK] User earned reward');
@@ -32663,6 +32684,7 @@ var _0xcdc9 = function (_0x28b7ae) {
                 onClose: function() {
                   console.log('[YandexSDK] Rewarded video closed');
                   window.YandexSDK.gameplayStart();
+                  restoreAfterYandexAd();
                   if (rewarded) {
                     messageEntity["show"](true);
                     if (typeof rewardCallback === 'function') {
@@ -32675,6 +32697,7 @@ var _0xcdc9 = function (_0x28b7ae) {
                 onError: function(error) {
                   console.log('[YandexSDK] Rewarded video error:', error);
                   window.YandexSDK.gameplayStart();
+                  restoreAfterYandexAd();
                   messageEntity["show"](false);
                 }
               });
