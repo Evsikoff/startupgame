@@ -18658,12 +18658,37 @@ if (void 0x0 === this["jukebox"])
                 this["loadAll"]());
         }),
         (ig["Game"]["prototype"]["loadAll"] = function () {
-          var _0x265536 = this["storage"]["get"](this["storageName"]);
-          if (null === _0x265536 || "undefined" === typeof _0x265536)
-            _0x265536 = this["initData"]();
-          for (var _0x1e4469 in _0x265536)
-            this["sessionData"][_0x1e4469] = _0x265536[_0x1e4469];
-          this["storage"]["set"](this["storageName"], _0x265536);
+          var self = this;
+          var localData = this["storage"]["get"](this["storageName"]);
+
+          // Try to load from Yandex cloud first
+          if (typeof window.YandexSDK !== 'undefined' && window.YandexSDK.isPlayerInitialized) {
+            window.YandexSDK.loadData()
+              .then(function(cloudData) {
+                if (cloudData && Object.keys(cloudData).length > 0) {
+                  console.log('[YandexSDK] Using cloud save data');
+                  for (var key in cloudData)
+                    self["sessionData"][key] = cloudData[key];
+                  self["storage"]["set"](self["storageName"], cloudData);
+                } else {
+                  console.log('[YandexSDK] No cloud data, using local storage');
+                  self._loadFromLocal(localData);
+                }
+              })
+              .catch(function(error) {
+                console.log('[YandexSDK] Cloud load failed, using local storage:', error);
+                self._loadFromLocal(localData);
+              });
+          } else {
+            this._loadFromLocal(localData);
+          }
+        }),
+        (ig["Game"]["prototype"]["_loadFromLocal"] = function (localData) {
+          if (null === localData || "undefined" === typeof localData)
+            localData = this["initData"]();
+          for (var key in localData)
+            this["sessionData"][key] = localData[key];
+          this["storage"]["set"](this["storageName"], localData);
         }),
         (ig["Game"]["prototype"]["saveAll"] = function () {
           var _0xc35aad = this["storage"]["get"](this["storageName"]),
@@ -18671,6 +18696,17 @@ if (void 0x0 === this["jukebox"])
           for (_0x54b1d7 in _0xc35aad)
             _0xc35aad[_0x54b1d7] = this["sessionData"][_0x54b1d7];
           this["storage"]["set"](this["storageName"], _0xc35aad);
+
+          // Also save to Yandex cloud
+          if (typeof window.YandexSDK !== 'undefined' && window.YandexSDK.isPlayerInitialized) {
+            window.YandexSDK.saveData(_0xc35aad)
+              .then(function() {
+                console.log('[YandexSDK] Data synced to cloud');
+              })
+              .catch(function(error) {
+                console.log('[YandexSDK] Cloud save failed:', error);
+              });
+          }
         }),
         (ig["Game"]["prototype"]["load"] = function (_0x5865ab) {
           return this["storage"]["get"](this["storageName"])[_0x5865ab];
@@ -25632,7 +25668,14 @@ var _0xcdc9 = function (_0x28b7ae) {
               ((this["playBtn"]["isEnabled"] = !0x0),
               (this["settingBtn"]["isEnabled"] = !0x0),
               null != this["moreBtn"] && (this["moreBtn"]["isEnabled"] = !0x0),
-              (this["buttonEnabledTimer"] = null)));
+              (this["buttonEnabledTimer"] = null),
+              // Call Yandex LoadingAPI.ready() when menu buttons animation is complete
+              (function() {
+                if (typeof window.YandexSDK !== 'undefined' && window.YandexSDK.isInitialized) {
+                  window.YandexSDK.gameReady();
+                  console.log('[YandexSDK] Game language:', window.YandexSDK.getLanguage());
+                }
+              })()));
         },
         draw: function () {
           this["parent"]();
@@ -25699,6 +25742,12 @@ var _0xcdc9 = function (_0x28b7ae) {
         },
         startTransitionOut: function () {
           (ig["soundHandler"]["sfxPlayer"]["play"]("click"),
+            // Call Yandex GameplayAPI.start() when Play button is clicked
+            (function() {
+              if (typeof window.YandexSDK !== 'undefined' && window.YandexSDK.isInitialized) {
+                window.YandexSDK.gameplayStart();
+              }
+            })(),
             ig["game"]["director"]["nextLevel"]());
         },
       });
@@ -31963,6 +32012,12 @@ var _0xcdc9 = function (_0x28b7ae) {
         showSettingPanel: function () {
           null == this["settingPanel"] &&
             (this["setButtonsActive"](!0x1),
+            // Call Yandex GameplayAPI.stop() when settings are opened from game screen
+            (function() {
+              if (typeof window.YandexSDK !== 'undefined' && window.YandexSDK.isInitialized) {
+                window.YandexSDK.gameplayStop();
+              }
+            })(),
             (this["settingPanel"] = ig["game"]["spawnEntity"](
               EntitySettingController,
               0x0,
@@ -31989,6 +32044,12 @@ var _0xcdc9 = function (_0x28b7ae) {
         },
         hideSettingPanel: function () {
           (this["setButtonsActive"](!0x0),
+            // Call Yandex GameplayAPI.start() when settings are closed from game screen
+            (function() {
+              if (typeof window.YandexSDK !== 'undefined' && window.YandexSDK.isInitialized) {
+                window.YandexSDK.gameplayStart();
+              }
+            })(),
             this["settingPanel"] &&
               (this["settingPanel"]["kill"](), (this["settingPanel"] = null)));
         },
@@ -32583,16 +32644,51 @@ var _0xcdc9 = function (_0x28b7ae) {
               0x0,
               { zIndex: 0x4e20, font: { shiftY: 0x5 }, waitDelay: 0x1 },
             );
-            try {
-              ig["poki"]["showRewardedAd"](
-                function () {
-                  (_0x2cffe6["show"](!![]), _0x118e17());
+            var rewardCallback = _0x118e17;
+            var messageEntity = _0x2cffe6;
+            var rewarded = false;
+
+            // Use Yandex SDK for rewarded video
+            if (typeof window.YandexSDK !== 'undefined' && window.YandexSDK.isInitialized) {
+              window.YandexSDK.showRewardedVideo({
+                onOpen: function() {
+                  console.log('[YandexSDK] Rewarded video opened');
                 },
-                function () {
-                  _0x2cffe6["show"](![]);
+                onRewarded: function() {
+                  console.log('[YandexSDK] User earned reward');
+                  rewarded = true;
                 },
-              );
-            } catch (_0x54a3dc) {}
+                onClose: function() {
+                  console.log('[YandexSDK] Rewarded video closed');
+                  if (rewarded) {
+                    messageEntity["show"](true);
+                    if (typeof rewardCallback === 'function') {
+                      rewardCallback();
+                    }
+                  } else {
+                    messageEntity["show"](false);
+                  }
+                },
+                onError: function(error) {
+                  console.log('[YandexSDK] Rewarded video error:', error);
+                  messageEntity["show"](false);
+                }
+              });
+            } else {
+              // Fallback to Poki if Yandex SDK is not available
+              try {
+                ig["poki"]["showRewardedAd"](
+                  function () {
+                    (messageEntity["show"](true), rewardCallback());
+                  },
+                  function () {
+                    messageEntity["show"](false);
+                  },
+                );
+              } catch (_0x54a3dc) {
+                messageEntity["show"](false);
+              }
+            }
           },
           endGame: function () {
             (console["log"]("End\x20game"),
