@@ -25672,6 +25672,7 @@ var _0xcdc9 = function (_0x28b7ae) {
               // Call Yandex LoadingAPI.ready() when menu buttons animation is complete
               (function() {
                 if (typeof window.YandexSDK !== 'undefined' && window.YandexSDK.isInitialized) {
+                  window.YandexSDK.setLanguage('ru');
                   window.YandexSDK.gameReady();
                   console.log('[YandexSDK] Game language:', window.YandexSDK.getLanguage());
                 }
@@ -32653,6 +32654,7 @@ var _0xcdc9 = function (_0x28b7ae) {
               window.YandexSDK.showRewardedVideo({
                 onOpen: function() {
                   console.log('[YandexSDK] Rewarded video opened');
+                  window.YandexSDK.gameplayStop();
                 },
                 onRewarded: function() {
                   console.log('[YandexSDK] User earned reward');
@@ -32660,6 +32662,7 @@ var _0xcdc9 = function (_0x28b7ae) {
                 },
                 onClose: function() {
                   console.log('[YandexSDK] Rewarded video closed');
+                  window.YandexSDK.gameplayStart();
                   if (rewarded) {
                     messageEntity["show"](true);
                     if (typeof rewardCallback === 'function') {
@@ -32671,6 +32674,7 @@ var _0xcdc9 = function (_0x28b7ae) {
                 },
                 onError: function(error) {
                   console.log('[YandexSDK] Rewarded video error:', error);
+                  window.YandexSDK.gameplayStart();
                   messageEntity["show"](false);
                 }
               });

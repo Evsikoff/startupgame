@@ -241,6 +241,31 @@
         },
 
         /**
+         * Set the current language
+         * @param {string} lang - Language code
+         */
+        setLanguage: function(lang) {
+            var self = this;
+            if (!self.isInitialized || !self.ysdk) {
+                self.log('SDK not initialized. Cannot set language.');
+                return;
+            }
+
+            try {
+                if (self.ysdk.environment && self.ysdk.environment.i18n) {
+                    if (typeof self.ysdk.environment.i18n.lang === 'function') {
+                        self.ysdk.environment.i18n.lang(lang);
+                    } else {
+                        self.ysdk.environment.i18n.lang = lang;
+                    }
+                    self.log('Language set to', lang);
+                }
+            } catch (error) {
+                self.log('Error setting language:', error);
+            }
+        },
+
+        /**
          * Logging helper
          */
         log: function() {
