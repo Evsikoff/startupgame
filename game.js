@@ -27342,7 +27342,7 @@ var _0xcdc9 = function (_0x28b7ae) {
               _0x424ccb,
               this["pos"]["x"] + 0x82,
               this["pos"]["y"] +
-                0x9b +
+                0x82 +
                 (this["infoBg"]["height"] - this["portrait"]["height"]) / 0x2,
             ),
             this["updateEligible"]
@@ -27396,7 +27396,7 @@ var _0xcdc9 = function (_0x28b7ae) {
                   _0x424ccb,
                   this["pos"]["x"] + 0x82,
                   this["pos"]["y"] +
-                    0x87 +
+                    0x82 +
                     (this["infoBg"]["height"] - this["portrait"]["height"]) /
                       0x2,
                 ),
@@ -27408,7 +27408,7 @@ var _0xcdc9 = function (_0x28b7ae) {
                   _0x424ccb,
                   this["pos"]["x"] + 0x82,
                   this["pos"]["y"] +
-                    0x104 +
+                    0x82 +
                     (this["infoBg"]["height"] - this["portrait"]["height"]) /
                       0x2,
                 ),
