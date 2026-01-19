@@ -40,6 +40,11 @@
                         self.ysdk = ysdk;
                         self.isInitialized = true;
                         self.log('Yandex SDK initialized successfully');
+
+                        // Immediately call LoadingAPI.ready() and initialize language
+                        self.initLanguage();
+                        self.gameReady();
+
                         resolve(ysdk);
                     })
                     .catch(function(error) {
