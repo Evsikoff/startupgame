@@ -25669,12 +25669,14 @@ var _0xcdc9 = function (_0x28b7ae) {
               (this["settingBtn"]["isEnabled"] = !0x0),
               null != this["moreBtn"] && (this["moreBtn"]["isEnabled"] = !0x0),
               (this["buttonEnabledTimer"] = null),
-              // Call Yandex LoadingAPI.ready() when menu buttons animation is complete
+              // Call Yandex LoadingAPI.ready() when main menu is shown
               (function() {
-                if (typeof window.YandexSDK !== 'undefined' && window.YandexSDK.isInitialized) {
-                  window.YandexSDK.setLanguage('ru');
+                if (typeof window.YandexSDK !== 'undefined') {
+                  // Initialize language from ysdk.environment.i18n.lang (defaults to 'ru')
+                  var lang = window.YandexSDK.initLanguage();
+                  console.log('[YandexSDK] Game language:', lang);
+                  // Signal that the game is ready (LoadingAPI.ready())
                   window.YandexSDK.gameReady();
-                  console.log('[YandexSDK] Game language:', window.YandexSDK.getLanguage());
                 }
               })()));
         },

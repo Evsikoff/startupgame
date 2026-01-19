@@ -12,6 +12,9 @@
         isPlayerInitialized: false,
         verbose: true,
 
+        // Language settings
+        currentLanguage: 'ru', // Default language
+
         // Throttling settings for player.setData()
         SAVE_INTERVAL: 60000, // Minimum interval between saves (1 minute)
         lastSaveTime: 0,
@@ -315,43 +318,34 @@
          * @returns {string} Language code
          */
         getLanguage: function() {
-            var self = this;
-            if (!self.isInitialized || !self.ysdk) {
-                self.log('SDK not initialized. Returning default language.');
-                return 'ru';
-            }
-
-            try {
-                return self.ysdk.environment.i18n.lang || 'ru';
-            } catch (error) {
-                self.log('Error getting language:', error);
-                return 'ru';
-            }
+            return this.currentLanguage;
         },
 
         /**
-         * Set the current language
-         * @param {string} lang - Language code
+         * Initialize language from Yandex SDK environment
+         * Reads ysdk.environment.i18n.lang and stores it internally
+         * This should be called when the main menu is shown
+         * @returns {string} The detected language code
          */
-        setLanguage: function(lang) {
+        initLanguage: function() {
             var self = this;
-            if (!self.isInitialized || !self.ysdk) {
-                self.log('SDK not initialized. Cannot set language.');
-                return;
+            var lang = 'ru'; // Default language
+
+            if (self.isInitialized && self.ysdk) {
+                try {
+                    if (self.ysdk.environment && self.ysdk.environment.i18n && self.ysdk.environment.i18n.lang) {
+                        lang = self.ysdk.environment.i18n.lang;
+                    }
+                } catch (error) {
+                    self.log('Error reading language from SDK:', error);
+                }
+            } else {
+                self.log('SDK not initialized. Using default language.');
             }
 
-            try {
-                if (self.ysdk.environment && self.ysdk.environment.i18n) {
-                    if (typeof self.ysdk.environment.i18n.lang === 'function') {
-                        self.ysdk.environment.i18n.lang(lang);
-                    } else {
-                        self.ysdk.environment.i18n.lang = lang;
-                    }
-                    self.log('Language set to', lang);
-                }
-            } catch (error) {
-                self.log('Error setting language:', error);
-            }
+            self.currentLanguage = lang;
+            self.log('Language initialized:', lang);
+            return lang;
         },
 
         /**
