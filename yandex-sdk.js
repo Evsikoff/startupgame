@@ -12,6 +12,13 @@
         isPlayerInitialized: false,
         verbose: true,
 
+        // Throttling settings for player.setData()
+        SAVE_INTERVAL: 60000, // Minimum interval between saves (1 minute)
+        lastSaveTime: 0,
+        pendingData: null,
+        saveTimer: null,
+        isSaving: false,
+
         /**
          * Initialize the Yandex Games SDK
          * @returns {Promise} Resolves when SDK is ready
@@ -70,14 +77,13 @@
         },
 
         /**
-         * Save player data to Yandex cloud
+         * Internal method to actually perform the save
          * @param {Object} data - Data to save
          * @param {boolean} flush - Whether to flush immediately
          * @returns {Promise}
          */
-        saveData: function(data, flush) {
+        _doSave: function(data, flush) {
             var self = this;
-            flush = flush !== false; // default true
 
             return new Promise(function(resolve, reject) {
                 if (!self.isPlayerInitialized || !self.player) {
@@ -86,16 +92,99 @@
                     return;
                 }
 
+                self.isSaving = true;
                 self.player.setData(data, flush)
                     .then(function() {
+                        self.lastSaveTime = Date.now();
+                        self.isSaving = false;
                         self.log('Data saved to Yandex cloud successfully');
                         resolve();
                     })
                     .catch(function(error) {
+                        self.isSaving = false;
                         self.log('Failed to save data to Yandex cloud:', error);
                         reject(error);
                     });
             });
+        },
+
+        /**
+         * Save player data to Yandex cloud with throttling
+         * Saves at most once per SAVE_INTERVAL (1 minute)
+         * @param {Object} data - Data to save
+         * @param {boolean} flush - Whether to flush immediately
+         * @returns {Promise}
+         */
+        saveData: function(data, flush) {
+            var self = this;
+            flush = flush !== false; // default true
+
+            // Always store the latest data
+            self.pendingData = { data: data, flush: flush };
+
+            return new Promise(function(resolve, reject) {
+                if (!self.isPlayerInitialized || !self.player) {
+                    self.log('Player not initialized. Cannot save data.');
+                    reject(new Error('Player not initialized'));
+                    return;
+                }
+
+                var now = Date.now();
+                var timeSinceLastSave = now - self.lastSaveTime;
+
+                // If enough time has passed, save immediately
+                if (timeSinceLastSave >= self.SAVE_INTERVAL) {
+                    // Clear any pending timer
+                    if (self.saveTimer) {
+                        clearTimeout(self.saveTimer);
+                        self.saveTimer = null;
+                    }
+
+                    self.pendingData = null;
+                    self._doSave(data, flush).then(resolve).catch(reject);
+                } else {
+                    // Schedule save for when the interval expires
+                    var delay = self.SAVE_INTERVAL - timeSinceLastSave;
+
+                    if (!self.saveTimer) {
+                        self.log('Scheduling save in ' + Math.round(delay / 1000) + 's (throttled)');
+                        self.saveTimer = setTimeout(function() {
+                            self.saveTimer = null;
+                            if (self.pendingData) {
+                                var pending = self.pendingData;
+                                self.pendingData = null;
+                                self._doSave(pending.data, pending.flush);
+                            }
+                        }, delay);
+                    }
+
+                    // Resolve immediately since save is scheduled
+                    resolve();
+                }
+            });
+        },
+
+        /**
+         * Force immediate save of pending data (used on page unload/visibility change)
+         * @returns {Promise}
+         */
+        flushPendingData: function() {
+            var self = this;
+
+            // Clear any scheduled save
+            if (self.saveTimer) {
+                clearTimeout(self.saveTimer);
+                self.saveTimer = null;
+            }
+
+            if (self.pendingData && !self.isSaving) {
+                var pending = self.pendingData;
+                self.pendingData = null;
+                self.log('Flushing pending data immediately');
+                return self._doSave(pending.data, pending.flush);
+            }
+
+            return Promise.resolve();
         },
 
         /**
@@ -338,5 +427,25 @@
             .catch(function(error) {
                 YandexSDK.log('Initialization failed:', error);
             });
+    });
+
+    // Save pending data when page visibility changes (user switches tabs)
+    document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'hidden') {
+            YandexSDK.log('Page hidden - flushing pending save data');
+            YandexSDK.flushPendingData();
+        }
+    });
+
+    // Save pending data before page unload
+    window.addEventListener('beforeunload', function() {
+        YandexSDK.log('Page unloading - flushing pending save data');
+        YandexSDK.flushPendingData();
+    });
+
+    // Also handle pagehide for mobile browsers
+    window.addEventListener('pagehide', function() {
+        YandexSDK.log('Page hide - flushing pending save data');
+        YandexSDK.flushPendingData();
     });
 })();
