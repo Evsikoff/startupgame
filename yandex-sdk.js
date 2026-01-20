@@ -10,6 +10,7 @@
         player: null,
         isInitialized: false,
         isPlayerInitialized: false,
+        isGameReady: false, // True when LoadingAPI.ready() called and language initialized
         verbose: true,
 
         // Language settings
@@ -44,6 +45,8 @@
                         // Immediately call LoadingAPI.ready() and initialize language
                         self.initLanguage();
                         self.gameReady();
+                        self.isGameReady = true;
+                        self.log('SDK is game ready (LoadingAPI.ready called, language initialized)');
 
                         resolve(ysdk);
                     })

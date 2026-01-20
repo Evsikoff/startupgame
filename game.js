@@ -25665,6 +25665,7 @@ var _0xcdc9 = function (_0x28b7ae) {
           (this["parent"](),
             this["buttonEnabledTimer"] &&
               0x0 < this["buttonEnabledTimer"]["delta"]() &&
+              (typeof window.YandexSDK === 'undefined' || window.YandexSDK.isGameReady) &&
               ((this["playBtn"]["isEnabled"] = !0x0),
               (this["settingBtn"]["isEnabled"] = !0x0),
               null != this["moreBtn"] && (this["moreBtn"]["isEnabled"] = !0x0),
