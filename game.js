@@ -27142,11 +27142,16 @@ var _0xcdc9 = function (_0x28b7ae) {
         scrollOffset2: 0,
         maxScroll1: 0,
         maxScroll2: 0,
-        isDragging1: false,
-        isDragging2: false,
-        dragStartY: 0,
-        dragStartScroll: 0,
-        activeScrollArea: 0,
+        scrollBtn1UpX: 0,
+        scrollBtn1UpY: 0,
+        scrollBtn1DownX: 0,
+        scrollBtn1DownY: 0,
+        scrollBtn2UpX: 0,
+        scrollBtn2UpY: 0,
+        scrollBtn2DownX: 0,
+        scrollBtn2DownY: 0,
+        scrollBtnW: 24,
+        scrollBtnH: 30,
         init: function (_0x2ee002, _0x376b7e, _0x36fc43) {
           (this["parent"](_0x2ee002, _0x376b7e, _0x36fc43),
             this["setAnchoredPosition"](
@@ -27282,40 +27287,32 @@ var _0xcdc9 = function (_0x28b7ae) {
             this["renderButtonsView"]();
             this["checkEarning"] = ig["game"]["gameController"]["PlayerMoney"]();
           }
-          var _bubbleX = this["pos"]["x"] + (this["size"]["x"] - this["infoBg"]["width"]) / 2;
-          var _bubble1Y = this["pos"]["y"] + 0x41;
-          var _bubble2Y = this["pos"]["y"] + 0xb9;
-          var _bubbleW = this["infoBg"]["width"];
-          var _bubbleH = this["infoBg"]["height"];
           var _mouseX = ig["input"]["mouse"]["x"];
           var _mouseY = ig["input"]["mouse"]["y"];
-          var _inBubble1 = _mouseX >= _bubbleX && _mouseX <= _bubbleX + _bubbleW && _mouseY >= _bubble1Y && _mouseY <= _bubble1Y + _bubbleH;
-          var _inBubble2 = this["updateEligible"] && _mouseX >= _bubbleX && _mouseX <= _bubbleX + _bubbleW && _mouseY >= _bubble2Y && _mouseY <= _bubble2Y + _bubbleH;
+          var _scrollStep = 20;
           if (ig["input"]["pressed"]("click")) {
-            if (_inBubble1) {
-              this["isDragging1"] = true;
-              this["dragStartY"] = _mouseY;
-              this["dragStartScroll"] = this["scrollOffset1"];
-              this["activeScrollArea"] = 1;
-            } else if (_inBubble2) {
-              this["isDragging2"] = true;
-              this["dragStartY"] = _mouseY;
-              this["dragStartScroll"] = this["scrollOffset2"];
-              this["activeScrollArea"] = 2;
+            var _btnW = this["scrollBtnW"] || 24;
+            var _btnH = this["scrollBtnH"] || 30;
+            if (this["scrollBtn1UpX"] && this["maxScroll1"] > 0) {
+              if (_mouseX >= this["scrollBtn1UpX"] && _mouseX <= this["scrollBtn1UpX"] + _btnW && _mouseY >= this["scrollBtn1UpY"] && _mouseY <= this["scrollBtn1UpY"] + _btnH) {
+                this["scrollOffset1"] = Math.max(0, this["scrollOffset1"] - _scrollStep);
+                return;
+              }
+              if (_mouseX >= this["scrollBtn1DownX"] && _mouseX <= this["scrollBtn1DownX"] + _btnW && _mouseY >= this["scrollBtn1DownY"] && _mouseY <= this["scrollBtn1DownY"] + _btnH) {
+                this["scrollOffset1"] = Math.min(this["maxScroll1"], this["scrollOffset1"] + _scrollStep);
+                return;
+              }
             }
-          }
-          if (ig["input"]["released"]("click")) {
-            this["isDragging1"] = false;
-            this["isDragging2"] = false;
-            this["activeScrollArea"] = 0;
-          }
-          if (this["isDragging1"]) {
-            var _delta = this["dragStartY"] - _mouseY;
-            this["scrollOffset1"] = Math.max(0, Math.min(this["maxScroll1"], this["dragStartScroll"] + _delta));
-          }
-          if (this["isDragging2"]) {
-            var _delta2 = this["dragStartY"] - _mouseY;
-            this["scrollOffset2"] = Math.max(0, Math.min(this["maxScroll2"], this["dragStartScroll"] + _delta2));
+            if (this["scrollBtn2UpX"] && this["maxScroll2"] > 0) {
+              if (_mouseX >= this["scrollBtn2UpX"] && _mouseX <= this["scrollBtn2UpX"] + _btnW && _mouseY >= this["scrollBtn2UpY"] && _mouseY <= this["scrollBtn2UpY"] + _btnH) {
+                this["scrollOffset2"] = Math.max(0, this["scrollOffset2"] - _scrollStep);
+                return;
+              }
+              if (_mouseX >= this["scrollBtn2DownX"] && _mouseX <= this["scrollBtn2DownX"] + _btnW && _mouseY >= this["scrollBtn2DownY"] && _mouseY <= this["scrollBtn2DownY"] + _btnH) {
+                this["scrollOffset2"] = Math.min(this["maxScroll2"], this["scrollOffset2"] + _scrollStep);
+                return;
+              }
+            }
           }
         },
         setBusinessClass: function (_0x2aa7c4, _0x4e89e4) {
@@ -27329,7 +27326,7 @@ var _0xcdc9 = function (_0x28b7ae) {
           var _smallFont = 12;
           var _titleFont = 20;
           var _padding = 8;
-          var _textAreaWidth = 180;
+          var _textAreaWidth = 160;
           var _bubbleW = this["infoBg"]["width"];
           var _bubbleH = this["infoBg"]["height"];
           var _textAreaX = _textX;
@@ -27370,12 +27367,60 @@ var _0xcdc9 = function (_0x28b7ae) {
             this["maxScroll2"] = Math.max(0, _contentHeight - _textAreaH);
           }
           _ctx["restore"]();
-          if ((_bubbleIndex == 1 && this["maxScroll1"] > 0) || (_bubbleIndex == 2 && this["maxScroll2"] > 0)) {
-            var _maxScroll = _bubbleIndex == 1 ? this["maxScroll1"] : this["maxScroll2"];
-            var _scrollBarH = Math.max(20, _textAreaH * (_textAreaH / _contentHeight));
-            var _scrollBarY = _textAreaY + (_scrollOffset / _maxScroll) * (_textAreaH - _scrollBarH);
-            _ctx["fillStyle"] = "rgba(25, 13, 58, 0.3)";
-            _ctx["fillRect"](_textAreaX + _textAreaWidth - 6, _scrollBarY, 4, _scrollBarH);
+          var _maxScroll = _bubbleIndex == 1 ? this["maxScroll1"] : this["maxScroll2"];
+          if (_maxScroll > 0) {
+            var _btnX = _textAreaX + _textAreaWidth + 4;
+            var _btnW = 24;
+            var _btnH = 30;
+            var _btnUpY = _textAreaY + 5;
+            var _btnDownY = _textAreaY + _textAreaH - _btnH - 5;
+            if (_bubbleIndex == 1) {
+              this["scrollBtn1UpX"] = _btnX;
+              this["scrollBtn1UpY"] = _btnUpY;
+              this["scrollBtn1DownX"] = _btnX;
+              this["scrollBtn1DownY"] = _btnDownY;
+              this["scrollBtnW"] = _btnW;
+              this["scrollBtnH"] = _btnH;
+            } else {
+              this["scrollBtn2UpX"] = _btnX;
+              this["scrollBtn2UpY"] = _btnUpY;
+              this["scrollBtn2DownX"] = _btnX;
+              this["scrollBtn2DownY"] = _btnDownY;
+            }
+            var _r = 5;
+            _ctx["fillStyle"] = _scrollOffset > 0 ? "#4a90d9" : "#aaa";
+            _ctx["beginPath"]();
+            _ctx["moveTo"](_btnX + _r, _btnUpY);
+            _ctx["lineTo"](_btnX + _btnW - _r, _btnUpY);
+            _ctx["arc"](_btnX + _btnW - _r, _btnUpY + _r, _r, -Math.PI / 2, 0);
+            _ctx["lineTo"](_btnX + _btnW, _btnUpY + _btnH - _r);
+            _ctx["arc"](_btnX + _btnW - _r, _btnUpY + _btnH - _r, _r, 0, Math.PI / 2);
+            _ctx["lineTo"](_btnX + _r, _btnUpY + _btnH);
+            _ctx["arc"](_btnX + _r, _btnUpY + _btnH - _r, _r, Math.PI / 2, Math.PI);
+            _ctx["lineTo"](_btnX, _btnUpY + _r);
+            _ctx["arc"](_btnX + _r, _btnUpY + _r, _r, Math.PI, Math.PI * 1.5);
+            _ctx["closePath"]();
+            _ctx["fill"]();
+            _ctx["fillStyle"] = "#fff";
+            _ctx["font"] = "bold 16px Arial";
+            _ctx["textAlign"] = "center";
+            _ctx["textBaseline"] = "middle";
+            _ctx["fillText"]("\u25B2", _btnX + _btnW / 2, _btnUpY + _btnH / 2);
+            _ctx["fillStyle"] = _scrollOffset < _maxScroll ? "#4a90d9" : "#aaa";
+            _ctx["beginPath"]();
+            _ctx["moveTo"](_btnX + _r, _btnDownY);
+            _ctx["lineTo"](_btnX + _btnW - _r, _btnDownY);
+            _ctx["arc"](_btnX + _btnW - _r, _btnDownY + _r, _r, -Math.PI / 2, 0);
+            _ctx["lineTo"](_btnX + _btnW, _btnDownY + _btnH - _r);
+            _ctx["arc"](_btnX + _btnW - _r, _btnDownY + _btnH - _r, _r, 0, Math.PI / 2);
+            _ctx["lineTo"](_btnX + _r, _btnDownY + _btnH);
+            _ctx["arc"](_btnX + _r, _btnDownY + _btnH - _r, _r, Math.PI / 2, Math.PI);
+            _ctx["lineTo"](_btnX, _btnDownY + _r);
+            _ctx["arc"](_btnX + _r, _btnDownY + _r, _r, Math.PI, Math.PI * 1.5);
+            _ctx["closePath"]();
+            _ctx["fill"]();
+            _ctx["fillStyle"] = "#fff";
+            _ctx["fillText"]("\u25BC", _btnX + _btnW / 2, _btnDownY + _btnH / 2);
           }
         },
         draw: function () {
