@@ -27287,8 +27287,8 @@ var _0xcdc9 = function (_0x28b7ae) {
             this["renderButtonsView"]();
             this["checkEarning"] = ig["game"]["gameController"]["PlayerMoney"]();
           }
-          var _mouseX = ig["input"]["mouse"]["x"];
-          var _mouseY = ig["input"]["mouse"]["y"];
+          var _mouseX = ig["input"]["mouse"]["x"] / ig["sizeHandler"]["sizeRatio"]["x"] / ig["sizeHandler"]["scaleRatioMultiplier"]["x"];
+          var _mouseY = ig["input"]["mouse"]["y"] / ig["sizeHandler"]["sizeRatio"]["y"] / ig["sizeHandler"]["scaleRatioMultiplier"]["y"];
           var _scrollStep = 20;
           if (ig["input"]["pressed"]("click")) {
             var _btnW = this["scrollBtnW"] || 24;
