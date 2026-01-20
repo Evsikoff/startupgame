@@ -27138,6 +27138,15 @@ var _0xcdc9 = function (_0x28b7ae) {
         textDesc1: null,
         textDesc2: null,
         id: null,
+        scrollOffset1: 0,
+        scrollOffset2: 0,
+        maxScroll1: 0,
+        maxScroll2: 0,
+        isDragging1: false,
+        isDragging2: false,
+        dragStartY: 0,
+        dragStartScroll: 0,
+        activeScrollArea: 0,
         init: function (_0x2ee002, _0x376b7e, _0x36fc43) {
           (this["parent"](_0x2ee002, _0x376b7e, _0x36fc43),
             this["setAnchoredPosition"](
@@ -27268,12 +27277,46 @@ var _0xcdc9 = function (_0x28b7ae) {
               ig["game"]["gameController"]["PlayerMoney"]()));
         },
         update: function () {
-          (this["parent"](),
-            ig["game"]["gameController"]["PlayerMoney"]() !=
-              this["checkEarning"] &&
-              (this["renderButtonsView"](),
-              (this["checkEarning"] =
-                ig["game"]["gameController"]["PlayerMoney"]())));
+          this["parent"]();
+          if (ig["game"]["gameController"]["PlayerMoney"]() != this["checkEarning"]) {
+            this["renderButtonsView"]();
+            this["checkEarning"] = ig["game"]["gameController"]["PlayerMoney"]();
+          }
+          var _bubbleX = this["pos"]["x"] + (this["size"]["x"] - this["infoBg"]["width"]) / 2;
+          var _bubble1Y = this["pos"]["y"] + 0x41;
+          var _bubble2Y = this["pos"]["y"] + 0xb9;
+          var _bubbleW = this["infoBg"]["width"];
+          var _bubbleH = this["infoBg"]["height"];
+          var _mouseX = ig["input"]["mouse"]["x"];
+          var _mouseY = ig["input"]["mouse"]["y"];
+          var _inBubble1 = _mouseX >= _bubbleX && _mouseX <= _bubbleX + _bubbleW && _mouseY >= _bubble1Y && _mouseY <= _bubble1Y + _bubbleH;
+          var _inBubble2 = this["updateEligible"] && _mouseX >= _bubbleX && _mouseX <= _bubbleX + _bubbleW && _mouseY >= _bubble2Y && _mouseY <= _bubble2Y + _bubbleH;
+          if (ig["input"]["pressed"]("click")) {
+            if (_inBubble1) {
+              this["isDragging1"] = true;
+              this["dragStartY"] = _mouseY;
+              this["dragStartScroll"] = this["scrollOffset1"];
+              this["activeScrollArea"] = 1;
+            } else if (_inBubble2) {
+              this["isDragging2"] = true;
+              this["dragStartY"] = _mouseY;
+              this["dragStartScroll"] = this["scrollOffset2"];
+              this["activeScrollArea"] = 2;
+            }
+          }
+          if (ig["input"]["released"]("click")) {
+            this["isDragging1"] = false;
+            this["isDragging2"] = false;
+            this["activeScrollArea"] = 0;
+          }
+          if (this["isDragging1"]) {
+            var _delta = this["dragStartY"] - _mouseY;
+            this["scrollOffset1"] = Math.max(0, Math.min(this["maxScroll1"], this["dragStartScroll"] + _delta));
+          }
+          if (this["isDragging2"]) {
+            var _delta2 = this["dragStartY"] - _mouseY;
+            this["scrollOffset2"] = Math.max(0, Math.min(this["maxScroll2"], this["dragStartScroll"] + _delta2));
+          }
         },
         setBusinessClass: function (_0x2aa7c4, _0x4e89e4) {
           ((this["businessClass"] = _0x2aa7c4),
@@ -27281,244 +27324,112 @@ var _0xcdc9 = function (_0x28b7ae) {
             this["changeTitle"](this["businessClass"]["businessData"]["Id"]),
             null != this["upgradeData"] && this["createUpgradeData"]());
         },
+        drawInfoBubbleContent: function (_ctx, _bubbleX, _bubbleY, _textX, _levelNum, _effectText, _skillDesc, _scrollOffset, _bubbleIndex) {
+          var _lineHeight = this["textwrapper"]["textLineHeight"];
+          var _smallFont = 12;
+          var _titleFont = 20;
+          var _padding = 8;
+          var _textAreaWidth = 180;
+          var _bubbleW = this["infoBg"]["width"];
+          var _bubbleH = this["infoBg"]["height"];
+          var _textAreaX = _textX;
+          var _textAreaY = _bubbleY + _padding;
+          var _textAreaH = _bubbleH - _padding * 2;
+          _ctx["save"]();
+          _ctx["beginPath"]();
+          _ctx["rect"](_textAreaX, _textAreaY, _textAreaWidth, _textAreaH);
+          _ctx["clip"]();
+          var _y = _textAreaY - _scrollOffset;
+          _ctx["font"] = _titleFont + "px comfortaa";
+          _ctx["fillStyle"] = "#fff";
+          _ctx["textAlign"] = "left";
+          _ctx["textBaseline"] = "top";
+          _ctx["fillText"](_STRINGS["Game"]["Level"] + " " + _levelNum, _textAreaX, _y);
+          _y += _titleFont + 6;
+          _ctx["font"] = _smallFont + "px comfortaa";
+          _ctx["fillStyle"] = "#190d3a";
+          _ctx["fillText"](_STRINGS["Game"]["Effect"] + " :", _textAreaX, _y);
+          _y += _smallFont + 2;
+          var _effectLines = this["textwrapper"]["wrapText"](_effectText, _textAreaWidth);
+          for (var i = 0; i < _effectLines["length"]; i++) {
+            _ctx["fillText"](_effectLines[i], _textAreaX, _y);
+            _y += _lineHeight;
+          }
+          _y += 4;
+          _ctx["fillText"](_STRINGS["Game"]["ActiveSkill"], _textAreaX, _y);
+          _y += _smallFont + 2;
+          var _skillLines = this["textwrapper"]["wrapText"](_skillDesc, _textAreaWidth);
+          for (var j = 0; j < _skillLines["length"]; j++) {
+            _ctx["fillText"](_skillLines[j], _textAreaX, _y);
+            _y += _lineHeight;
+          }
+          var _contentHeight = _y - (_textAreaY - _scrollOffset);
+          if (_bubbleIndex == 1) {
+            this["maxScroll1"] = Math.max(0, _contentHeight - _textAreaH);
+          } else {
+            this["maxScroll2"] = Math.max(0, _contentHeight - _textAreaH);
+          }
+          _ctx["restore"]();
+          if ((_bubbleIndex == 1 && this["maxScroll1"] > 0) || (_bubbleIndex == 2 && this["maxScroll2"] > 0)) {
+            var _maxScroll = _bubbleIndex == 1 ? this["maxScroll1"] : this["maxScroll2"];
+            var _scrollBarH = Math.max(20, _textAreaH * (_textAreaH / _contentHeight));
+            var _scrollBarY = _textAreaY + (_scrollOffset / _maxScroll) * (_textAreaH - _scrollBarH);
+            _ctx["fillStyle"] = "rgba(25, 13, 58, 0.3)";
+            _ctx["fillRect"](_textAreaX + _textAreaWidth - 6, _scrollBarY, 4, _scrollBarH);
+          }
+        },
         draw: function () {
           this["parent"]();
-          var _0x5d26fb = ig["system"]["context"];
-          ((_0x5d26fb["globalAlpha"] = 0.5),
-            (_0x5d26fb["fillStyle"] = "#000"),
-            _0x5d26fb["fillRect"](
-              0x0,
-              0x0,
-              ig["responsive"]["width"],
-              ig["responsive"]["height"],
-            ),
-            (_0x5d26fb["globalAlpha"] = 0x1),
-            this["panelImage"]["draw"](this["pos"]["x"], this["pos"]["y"]),
-            (_0x5d26fb["font"] = "23px\x20comfortaa"),
-            (_0x5d26fb["fillStyle"] = "#fbe74e"),
-            (_0x5d26fb["textAlign"] = "center"),
-            (_0x5d26fb["textBaseline"] = "top"),
-            (_0x5d26fb["lineWidth"] = 0x5),
-            (_0x5d26fb["strokeStyle"] = "#190d3a"),
-            (_0x5d26fb["lineCap"] = "round"),
-            (_0x5d26fb["lineJoin"] = "round"),
-            _0x5d26fb["strokeText"](
-              this["title"],
-              this["pos"]["x"] + this["size"]["x"] / 0x2,
-              this["pos"]["y"] + 0x1e,
-            ),
-            _0x5d26fb["fillText"](
-              this["title"],
-              this["pos"]["x"] + this["size"]["x"] / 0x2,
-              this["pos"]["y"] + 0x1e,
-            ),
-            this["infoBg"]["draw"](
-              this["pos"]["x"] +
-                (this["size"]["x"] - this["infoBg"]["width"]) / 0x2,
-              this["pos"]["y"] + 0x41,
-            ),
-            this["portrait"]["draw"](
-              this["pos"]["x"] + 0x23,
-              this["pos"]["y"] +
-                0x41 +
-                (this["infoBg"]["height"] - this["portrait"]["height"]) / 0x2,
-            ),
-            (_0x5d26fb["fillStyle"] = "#fff"),
-            (_0x5d26fb["textAlign"] = "left"),
-            _0x5d26fb["fillText"](
-              _STRINGS["Game"]["Level"] +
-                "\x20" +
-                (this["businessClass"]["saveData"]["managerLevel"] + 0x1),
-              this["pos"]["x"] + 0x82,
-              this["pos"]["y"] +
-                0x41 +
-                (this["infoBg"]["height"] - this["portrait"]["height"]) / 0x2,
-            ),
-            (_0x5d26fb["font"] = "14px\x20comfortaa"),
-            (_0x5d26fb["fillStyle"] = "#190d3a"),
-            _0x5d26fb["fillText"](
-              _STRINGS["Game"]["Effect"] + "\x20:\x20",
-              this["pos"]["x"] + 0x82,
-              this["pos"]["y"] +
-                0x5a +
-                (this["infoBg"]["height"] - this["portrait"]["height"]) / 0x2,
-            ),
-            _0x5d26fb["fillText"](
-              _STRINGS["Game"]["ActiveSkill"],
-              this["pos"]["x"] + 0x82,
-              this["pos"]["y"] +
-                0x78 +
-                (this["infoBg"]["height"] - this["portrait"]["height"]) / 0x2,
-            ));
-          var _0x424ccb =
-            "Warehouse" == this["id"] || "Elevator" == this["id"]
-              ? this["textwrapper"]["wrapText"](
-                  _STRINGS["Game"]["СКОРОСТЬ"] +
-                    "\x20+" +
-                    this["businessClass"]["СКОРОСТЬBooster"] +
-                    "%",
-                  0xdc,
-                )
-              : this["textwrapper"]["wrapText"](
-                  _STRINGS["Game"]["Profit"] +
-                    "\x20x" +
-                    this["businessClass"]["profitMultiplier"] +
-                    ",\x20" +
-                    _STRINGS["Game"]["СКОРОСТЬ"] +
-                    "\x20+" +
-                    this["businessClass"]["СКОРОСТЬBooster"] +
-                    "%",
-                  0xdc,
-                );
-          (this["textwrapper"]["drawTextList"](
-            _0x424ccb,
-            this["pos"]["x"] + 0x82,
-            this["pos"]["y"] +
-              0x69 +
-              (this["infoBg"]["height"] - this["portrait"]["height"]) / 0x2,
-          ),
-            (_0x424ccb = this["textwrapper"]["wrapText"](
-              _STRINGS["Game"]["ManagerSkillDesc"],
-              0xdc,
-            )),
-            this["textwrapper"]["drawTextList"](
-              _0x424ccb,
-              this["pos"]["x"] + 0x82,
-              this["pos"]["y"] +
-                0x82 +
-                (this["infoBg"]["height"] - this["portrait"]["height"]) / 0x2,
-            ),
-            this["updateEligible"]
-              ? ((_0x5d26fb["fillStyle"] = "#fff"),
-                (_0x5d26fb["font"] = "25px\x20comfortaa"),
-                this["infoBg"]["draw"](
-                  this["pos"]["x"] +
-                    (this["size"]["x"] - this["infoBg"]["width"]) / 0x2,
-                  this["pos"]["y"] + 0xb9,
-                ),
-                this["portrait"]["draw"](
-                  this["pos"]["x"] + 0x23,
-                  this["pos"]["y"] +
-                    0xb9 +
-                    (this["infoBg"]["height"] - this["portrait"]["height"]) /
-                      0x2,
-                ),
-                _0x5d26fb["fillText"](
-                  _STRINGS["Game"]["Level"] +
-                    "\x20" +
-                    (this["businessClass"]["saveData"]["managerLevel"] + 0x2),
-                  this["pos"]["x"] + 0x82,
-                  this["pos"]["y"] +
-                    0xb9 +
-                    (this["infoBg"]["height"] - this["portrait"]["height"]) /
-                      0x2,
-                ),
-                (_0x5d26fb["font"] = "14px\x20comfortaa"),
-                (_0x5d26fb["fillStyle"] = "#190d3a"),
-                _0x5d26fb["fillText"](
-                  _STRINGS["Game"]["Effect"] + "\x20:\x20",
-                  this["pos"]["x"] + 0x82,
-                  this["pos"]["y"] +
-                    0xd2 +
-                    (this["infoBg"]["height"] - this["portrait"]["height"]) /
-                      0x2,
-                ),
-                _0x5d26fb["fillText"](
-                  _STRINGS["Game"]["ActiveSkill"],
-                  this["pos"]["x"] + 0x82,
-                  this["pos"]["y"] +
-                    0xf5 +
-                    (this["infoBg"]["height"] - this["portrait"]["height"]) /
-                      0x2,
-                ),
-                (_0x424ccb = this["textwrapper"]["wrapText"](
-                  this["upgradeDesc"],
-                  0xdc,
-                )),
-                this["textwrapper"]["drawTextList"](
-                  _0x424ccb,
-                  this["pos"]["x"] + 0x82,
-                  this["pos"]["y"] +
-                    0x82 +
-                    (this["infoBg"]["height"] - this["portrait"]["height"]) /
-                      0x2,
-                ),
-                (_0x424ccb = this["textwrapper"]["wrapText"](
-                  _STRINGS["Game"]["ManagerSkillDesc"],
-                  0xdc,
-                )),
-                this["textwrapper"]["drawTextList"](
-                  _0x424ccb,
-                  this["pos"]["x"] + 0x82,
-                  this["pos"]["y"] +
-                    0x82 +
-                    (this["infoBg"]["height"] - this["portrait"]["height"]) /
-                      0x2,
-                ),
-                this["arrow"]["draw"](
-                  this["pos"]["x"] +
-                    (this["size"]["x"] - this["arrow"]["width"]) / 0x2 +
-                    0x32,
-                  this["pos"]["y"] + 0xb9 - this["arrow"]["height"] / 0x2,
-                ))
-              : (this["upgradeBarBg"]["draw"](
-                  this["pos"]["x"] +
-                    (this["size"]["x"] - this["upgradeBarBg"]["width"]) / 0x2,
-                  this["pos"]["y"] + this["size"]["y"] - 0x64,
-                ),
-                (_0x5d26fb["font"] = "18px\x20comfortaa"),
-                (_0x5d26fb["textAlign"] = "left"),
-                (_0x5d26fb["fillStyle"] = "#190d3a"),
-                _0x5d26fb["fillText"](
-                  _STRINGS["Game"]["NextUpgrade"],
-                  this["pos"]["x"] + 0x32,
-                  this["pos"]["y"] + this["size"]["y"] - 0x5a,
-                ),
-                this["barBg"]["draw"](
-                  this["pos"]["x"] +
-                    (this["size"]["x"] - this["barBg"]["width"]) / 0x2,
-                  this["pos"]["y"] + this["size"]["y"] - 0x46,
-                ),
-                (_0x5d26fb["font"] = "14px\x20comfortaa"),
-                _0x5d26fb["fillText"](
-                  this["type"] + "\x20" + _STRINGS["Game"]["Level"],
-                  this["pos"]["x"] + 0x32,
-                  this["pos"]["y"] + this["size"]["y"] - 0x28,
-                ),
-                (_0x5d26fb["textAlign"] = "right"),
-                0x0 == this["nextReq"]
-                  ? (this["barFilled"]["draw"](
-                      this["pos"]["x"] +
-                        (this["size"]["x"] - this["barBg"]["width"]) / 0x2,
-                      this["pos"]["y"] + this["size"]["y"] - 0x46,
-                      0x0,
-                      0x0,
-                      0x1 * this["barFilled"]["width"],
-                      this["barFilled"]["height"],
-                    ),
-                    _0x5d26fb["fillText"](
-                      _STRINGS["Game"]["Max"],
-                      this["pos"]["x"] + this["size"]["x"] - 0x32,
-                      this["pos"]["y"] + this["size"]["y"] - 0x28,
-                    ))
-                  : (this["barFilled"]["draw"](
-                      this["pos"]["x"] +
-                        (this["size"]["x"] - this["barBg"]["width"]) / 0x2,
-                      this["pos"]["y"] + this["size"]["y"] - 0x46,
-                      0x0,
-                      0x0,
-                      (this["businessClass"]["saveData"]["level"] /
-                        this["upgradeData"]["LevelReq"]) *
-                        this["barFilled"]["width"],
-                      this["barFilled"]["height"],
-                    ),
-                    _0x5d26fb["fillText"](
-                      this["businessClass"]["saveData"]["level"] +
-                        "\x20/\x20" +
-                        this["nextReq"],
-                      this["pos"]["x"] + this["size"]["x"] - 0x32,
-                      this["pos"]["y"] + this["size"]["y"] - 0x28,
-                    ))));
+          var _ctx = ig["system"]["context"];
+          _ctx["globalAlpha"] = 0.5;
+          _ctx["fillStyle"] = "#000";
+          _ctx["fillRect"](0, 0, ig["responsive"]["width"], ig["responsive"]["height"]);
+          _ctx["globalAlpha"] = 1;
+          this["panelImage"]["draw"](this["pos"]["x"], this["pos"]["y"]);
+          _ctx["font"] = "23px comfortaa";
+          _ctx["fillStyle"] = "#fbe74e";
+          _ctx["textAlign"] = "center";
+          _ctx["textBaseline"] = "top";
+          _ctx["lineWidth"] = 5;
+          _ctx["strokeStyle"] = "#190d3a";
+          _ctx["lineCap"] = "round";
+          _ctx["lineJoin"] = "round";
+          _ctx["strokeText"](this["title"], this["pos"]["x"] + this["size"]["x"] / 2, this["pos"]["y"] + 30);
+          _ctx["fillText"](this["title"], this["pos"]["x"] + this["size"]["x"] / 2, this["pos"]["y"] + 30);
+          var _bubbleX = this["pos"]["x"] + (this["size"]["x"] - this["infoBg"]["width"]) / 2;
+          var _bubble1Y = this["pos"]["y"] + 65;
+          this["infoBg"]["draw"](_bubbleX, _bubble1Y);
+          var _portraitOffset = (this["infoBg"]["height"] - this["portrait"]["height"]) / 2;
+          this["portrait"]["draw"](this["pos"]["x"] + 35, _bubble1Y + _portraitOffset);
+          var _textX = this["pos"]["x"] + 130;
+          var _effectText1 = "Warehouse" == this["id"] || "Elevator" == this["id"]
+            ? _STRINGS["Game"]["СКОРОСТЬ"] + " +" + this["businessClass"]["СКОРОСТЬBooster"] + "%"
+            : _STRINGS["Game"]["Profit"] + " x" + this["businessClass"]["profitMultiplier"] + ", " + _STRINGS["Game"]["СКОРОСТЬ"] + " +" + this["businessClass"]["СКОРОСТЬBooster"] + "%";
+          this["drawInfoBubbleContent"](_ctx, _bubbleX, _bubble1Y, _textX, this["businessClass"]["saveData"]["managerLevel"] + 1, _effectText1, _STRINGS["Game"]["ManagerSkillDesc"], this["scrollOffset1"], 1);
+          if (this["updateEligible"]) {
+            var _bubble2Y = this["pos"]["y"] + 185;
+            this["infoBg"]["draw"](_bubbleX, _bubble2Y);
+            this["portrait"]["draw"](this["pos"]["x"] + 35, _bubble2Y + _portraitOffset);
+            this["drawInfoBubbleContent"](_ctx, _bubbleX, _bubble2Y, _textX, this["businessClass"]["saveData"]["managerLevel"] + 2, this["upgradeDesc"], _STRINGS["Game"]["ManagerSkillDesc"], this["scrollOffset2"], 2);
+            this["arrow"]["draw"](this["pos"]["x"] + (this["size"]["x"] - this["arrow"]["width"]) / 2 + 50, _bubble2Y - this["arrow"]["height"] / 2);
+          } else {
+            this["upgradeBarBg"]["draw"](this["pos"]["x"] + (this["size"]["x"] - this["upgradeBarBg"]["width"]) / 2, this["pos"]["y"] + this["size"]["y"] - 100);
+            _ctx["font"] = "18px comfortaa";
+            _ctx["textAlign"] = "left";
+            _ctx["fillStyle"] = "#190d3a";
+            _ctx["fillText"](_STRINGS["Game"]["NextUpgrade"], this["pos"]["x"] + 50, this["pos"]["y"] + this["size"]["y"] - 90);
+            this["barBg"]["draw"](this["pos"]["x"] + (this["size"]["x"] - this["barBg"]["width"]) / 2, this["pos"]["y"] + this["size"]["y"] - 70);
+            _ctx["font"] = "14px comfortaa";
+            _ctx["fillText"](this["type"] + " " + _STRINGS["Game"]["Level"], this["pos"]["x"] + 50, this["pos"]["y"] + this["size"]["y"] - 40);
+            _ctx["textAlign"] = "right";
+            if (0 == this["nextReq"]) {
+              this["barFilled"]["draw"](this["pos"]["x"] + (this["size"]["x"] - this["barBg"]["width"]) / 2, this["pos"]["y"] + this["size"]["y"] - 70, 0, 0, this["barFilled"]["width"], this["barFilled"]["height"]);
+              _ctx["fillText"](_STRINGS["Game"]["Max"], this["pos"]["x"] + this["size"]["x"] - 50, this["pos"]["y"] + this["size"]["y"] - 40);
+            } else {
+              this["barFilled"]["draw"](this["pos"]["x"] + (this["size"]["x"] - this["barBg"]["width"]) / 2, this["pos"]["y"] + this["size"]["y"] - 70, 0, 0, (this["businessClass"]["saveData"]["level"] / this["upgradeData"]["LevelReq"]) * this["barFilled"]["width"], this["barFilled"]["height"]);
+              _ctx["fillText"](this["businessClass"]["saveData"]["level"] + " / " + this["nextReq"], this["pos"]["x"] + this["size"]["x"] - 50, this["pos"]["y"] + this["size"]["y"] - 40);
+            }
+          }
         },
         onCloseClicked: function () {
           (ig["soundHandler"]["sfxPlayer"]["play"]("click"),
